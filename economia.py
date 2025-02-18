@@ -1,65 +1,34 @@
-import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-import numpy as np
 
-# Cargar los datos desde un archivo CSV
-def cargar_datos(archivo):
-    datos = pd.read_csv(archivo, delimiter=';', decimal=',')
-    datos['Periodo'] = pd.to_datetime(datos['Periodo(MMM DD, AAAA)'], format='%Y/%m/%d')
-    datos['TRM'] = datos['Tasa Representativa del Mercado (TRM)']
-    return datos
+data = pd.read_csv('Tasa de cambio Representativa del Mercado (TRM).csv', sep=';', decimal=',', skiprows=1, names=['Fecha', 'TRM'])
+data['Fecha'] = pd.to_datetime(data['Fecha'], format='%Y/%m/%d')
+data['Growth Rate'] = data['TRM'].pct_change() * 100
+plt.figure(figsize=(14, 7))
+plt.subplot(2, 1, 1)
+plt.plot(data['Fecha'], data['TRM'], label='TRM', color='blue')
+plt.title('Tasa Representativa del Mercado (TRM)')
+plt.xlabel('Fecha')
+plt.ylabel('TRM')
+plt.legend()
+plt.subplot(2, 1, 2)
+plt.plot(data['Fecha'], data['Growth Rate'], label='Tasa de Crecimiento', color='red')
+plt.title('Tasa de Crecimiento Diaria')
+plt.xlabel('Fecha')
+plt.ylabel('Tasa de Crecimiento (%)')
+plt.legend()
+plt.tight_layout()
+plt.show()
 
-# Graficar los datos
-def graficar_datos(datos):
-    plt.figure(figsize=(10, 6))
-    plt.plot(datos['Periodo'], datos['TRM'], marker='o', linestyle='-')
-    plt.title('Tasa Representativa del Mercado (TRM)')
-    plt.xlabel('Fecha')
-    plt.ylabel('TRM')
-    plt.grid(True)
-    st.pyplot(plt)
+def calculoDias(data):
+    max_growth_day = data[data['Growth Rate'] == data['Growth Rate'].max()]
+    min_growth_day = data[data['Growth Rate'] == data['Growth Rate'].min()]
+    print("Mayor Crecimiento:")
+    print(max_growth_day[['Fecha', 'TRM', 'Growth Rate']])
+    print("\nMenor Crecimiento:")
+    print(min_growth_day[['Fecha', 'TRM', 'Growth Rate']])
 
-# Crear un modelo de estimación
-def modelo_estimacion(datos):
-    # Preparar los datos para el modelo
-    X = np.arange(len(datos)).reshape(-1, 1)
-    y = datos['TRM'].values
 
-    # Crear y entrenar el modelo
-    modelo = LinearRegression()
-    modelo.fit(X, y)
-
-    # Predecir valores futuros
-    futuro = np.arange(len(datos), len(datos) + 30).reshape(-1, 1)
-    predicciones = modelo.predict(futuro)
-
-    # Graficar las predicciones
-    plt.figure(figsize=(10, 6))
-    plt.plot(datos['Periodo'], datos['TRM'], marker='o', linestyle='-', label='TRM Real')
-    plt.plot(pd.date_range(start=datos['Periodo'].iloc[-1], periods=30, closed='right'), predicciones, marker='x', linestyle='--', color='red', label='Estimación')
-    plt.title('Estimación de la Tasa Representativa del Mercado (TRM)')
-    plt.xlabel('Fecha')
-    plt.ylabel('TRM')
-    plt.legend()
-    plt.grid(True)
-    st.pyplot(plt)
-
-# Función principal de Streamlit
-def main():
-    st.title('Estimación de la Tasa Representativa del Mercado (TRM)')
-
-    # Cargar el archivo CSV
-    archivo = st.file_uploader("Sube tu archivo CSV", type=["csv"])
-
-    if archivo is not None:
-        datos = cargar_datos(archivo)
-        st.write("Datos cargados:")
-        st.write(datos.head())
-
-        graficar_datos(datos)
-        modelo_estimacion(datos)
-
-if __name__ == "__main__":
-    main()
+    print('mayor precio')
+    
+calculoDias(data)
