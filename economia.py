@@ -1,3 +1,4 @@
+import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
@@ -18,7 +19,7 @@ def graficar_datos(datos):
     plt.xlabel('Fecha')
     plt.ylabel('TRM')
     plt.grid(True)
-    plt.show()
+    st.pyplot(plt)
 
 # Crear un modelo de estimación
 def modelo_estimacion(datos):
@@ -43,14 +44,22 @@ def modelo_estimacion(datos):
     plt.ylabel('TRM')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    st.pyplot(plt)
 
-# Función principal
+# Función principal de Streamlit
 def main():
-    archivo = 'Tasa de cambio Representativa del Mercado (TRM).csv'  # Asegúrate de tener el archivo en el mismo directorio
-    datos = cargar_datos(archivo)
-    graficar_datos(datos)
-    modelo_estimacion(datos)
+    st.title('Estimación de la Tasa Representativa del Mercado (TRM)')
+
+    # Cargar el archivo CSV
+    archivo = st.file_uploader("Sube tu archivo CSV", type=["csv"])
+
+    if archivo is not None:
+        datos = cargar_datos(archivo)
+        st.write("Datos cargados:")
+        st.write(datos.head())
+
+        graficar_datos(datos)
+        modelo_estimacion(datos)
 
 if __name__ == "__main__":
     main()
